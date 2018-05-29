@@ -1,0 +1,16 @@
+
+.vs/RootFinder/v15/.suo
+.vs/RootFinder/v15/Browse.VC.db
+.vs/RootFinder/v15/ipch/AutoPCH/ecba5cf11d446345/POLYNOMIALS.ipch
+.vs/RootFinder/v15/ipch/AutoPCH/434afb26a0011547/MAIN.ipch
+.vs/RootFinder/v15/Browse.VC.opendb
+Debug/RootFinder.tlog/CL.command.1.tlog
+Debug/main.obj
+Debug/polynomials.obj
+Debug/RootFinder.exe
+Debug/RootFinder.ilk
+*.log
+*.pdb
+*.tlog
+*.idb
+README.md
