@@ -1,61 +1,59 @@
+#ifndef __POLYNOMIALS_H__
+#define __POLYNOMIALS_H__
+
+#include <ostream>
+#include <string>
 
 // Struct for holding and displaying complex numbers.
-struct complex
+struct Complex
 {
-	void Display() const;
-
-    double re;      // Real part
-    double im;		// Imaginary part
+    double re_;     // Real part
+    double im_;     // Imaginary part
 };
 
+std::ostream& operator<<(std::ostream& out, const Complex& complex);
 
-// Class that types of polynomial equations inherit from.
-/*
-This supplies methods for displaying solutions as well as helper
-functions for specific subclass implementations of the DisplaySln method.
-*/
-class equation
+
+// Virtual base class that types of polynomial equations inherit from.
+class Equation
 {
 public:
-	virtual void DisplaySln() const = 0;
-
-protected:
-	void DisplayLeadCoeff(const double n) const;
-	void DisplayCoeff(const double n) const;
-	void DisplayConst(const double n) const;
+    virtual std::string formattedSolution() const = 0;
 };
 
 
 // Class that handles linear (or constant) equations.
-class linear : public equation
+class Linear : public Equation
 {
 public:
-	linear(const double& grad, const double& intercept);
+	Linear(const double grad, const double intercept);
 
-	void DisplaySln() const;
+    std::string formattedSolution() const;
 
 private:
-	double m;		// Gradient
-	double c;		// y-intercept
-	double root;	// Solution
+	double m_;	    // Gradient
+	double c_;	    // y-intercept
+	double root_;   // Solution
 };
 
 
 // Class that handles quadratic equations.
-class quadratic : public equation
+class Quadratic : public Equation
 {
 public:
-	quadratic(const double& c1, const double& c2, const double& c3);
+	Quadratic(const double c1, const double c2, const double c3);
 
-	void DisplaySln() const;
+    std::string formattedSolution() const;
 
 private:
-	double a;		    // x^2 coefficent
-	double b;		    // x coefficient
-	double c;		    // y-intercept
-	double det;		    // determinant (b^2 - 4ac)
-	complex root1;	    // 2 roots (could be complex)
-	complex root2;
+    double a_;          // x^2 coefficent
+	double b_;		    // x coefficient
+	double c_;		    // y-intercept
+	double det_;		// determinant (b^2 - 4ac)
+	Complex root1_;	    // 2 roots (could be complex)
+	Complex root2_;
 
-	void FindRoots();
+	void findRoots();
 };
+
+#endif

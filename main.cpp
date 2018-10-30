@@ -2,37 +2,41 @@
 
 #include <iostream>
 #include <memory>
+#include <tuple>
 
-using std::cout;
-using std::cin;
+static std::tuple<double, double, double> getCoeffsFromUser()
+{
+    double a, b, c;
+    std::cout << "a: ";
+    std::cin >> a;
+    std::cout << "b: ";
+    std::cin >> b;
+    std::cout << "c: ";
+    std::cin >> c;
+    std::cout << "\n";
 
+    return std::make_tuple(a, b, c);
+}
 
 int main()
 {
-    cout << "This application finds the roots of quadratic equations of\n";
-    cout << "the form f(x) = ax^2 + bx + c.  Enter your coefficients.\n\n";
+    Complex num{ 0, 0 };
+    std::cout << num << std::endl;
 
-	// Get coefficients from user
-	double c1, c2, c3;
+    std::cout << "This application finds the roots of quadratic equations of\n"
+        << "the form f(x) = ax^2 + bx + c.  Enter your coefficients.\n"
+        << std::endl;
 
-    cout << "a: ";
-    cin >> c1;
-    cout << "b: ";
-    cin >> c2;
-    cout << "c: ";
-    cin >> c3;
-    cout << "\n";
+    const auto [a, b, c] = getCoeffsFromUser();
 
     // Equation pointer can point to inherited object
-	std::unique_ptr<equation> pEqn;
-
-    if (c1 != 0)
-        pEqn = std::make_unique<quadratic>(c1, c2, c3);
+	std::unique_ptr<Equation> equation;
+    if (a != 0)
+        equation = std::make_unique<Quadratic>(a, b, c);
 	else
-	    pEqn = std::make_unique<linear>(c2, c3);
+	    equation = std::make_unique<Linear>(b, c);
 	
-	pEqn->DisplaySln();     // Constructor finds roots
-	cout << "\n\n\n";
+	std::cout << equation->formattedSolution() << "\n\n\n";
 
     return 0;
 }

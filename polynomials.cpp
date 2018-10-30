@@ -1,180 +1,145 @@
 #include "polynomials.h"
 
 #include <iostream>
+#include <sstream>
 #include <cmath>
 
-using std::cout;
-
-
-// Displays a complex number in a "nice" format.
-void complex::Display() const
+static std::string formatCoeff(const double n)
 {
-	if (re != 0) {
-		cout << re;
-		printf(" %s ", (im > 0) ? "+" : "-");
-	}
+    std::stringstream coeff;
+    coeff << ' ' << ((n > 0) ? '+' : '-') << ' ';
+
+    if (const double absN = std::abs(n); absN != 1.0)
+        coeff << absN;
+
+    return coeff.str();
+}
+
+static std::string formatLeadCoeff(const double n)
+{
+    std::stringstream leadCoeff;
+
+    if (n < 0)
+        leadCoeff << '-';
+
+    if (const double absN = std::abs(n); absN != 1.0)
+        leadCoeff << absN;
+
+    return leadCoeff.str();
+}
+
+static std::string formatConstTerm(const double n)
+{
+    std::stringstream constTerm;
+    constTerm << ' ' << ((n > 0) ? '+' : '-') << ' ' << std::abs(n);
+
+    return constTerm.str();
+}
+
+
+std::ostream& operator<<(std::ostream& out, const Complex& complex)
+{
+    if (complex.re_ != 0) {
+        out << complex.re_;
+        if (complex.im_ != 0)
+            out << formatCoeff(complex.im_) << 'i';
+    }
     else {
-        if (im < 0)		    // We assume im != 0 if this
-            cout << "-";    // function is being called
+        if (complex.im_ != 0)
+            out << formatLeadCoeff(complex.im_) << 'i';
+        else
+            out << 0;
     }
 
-    // If im == 1 or -1 then we don't display im before 'i'
-    if (double pos = abs(im); pos != 1.0)
-		cout << pos;
-	cout << "i";
+    return out;
 }
 
 
-//-- equation class methods --\\ 
-
-// Displays the coefficient of the first term of an equation.
-/*
-\param  n   Lead coefficent to be displayed (assumed to be non-zero).
-*/
-void equation::DisplayLeadCoeff(const double n) const
+Linear::Linear(const double m, const double c)
+    : m_{ m }
+    , c_{ c }
 {
-	if (n < 0)
-		cout << "-";    // No space between '-' and first coefficient
-    if (double pos = abs(n); pos != 1.0)
-		cout << pos;
+	root_ = (-c_ / m_ != 0.0) ? -c_ / m_ : 0;
 }
 
-
-// Displays coefficient in equation that isn't the first or constant term.
-/*
-\param  n   The coefficient to be displayed (assumed to be non-zero).
-*/
-void equation::DisplayCoeff(const double n) const
+std::string Linear::formattedSolution() const
 {
-	printf(" %s ", (n > 0) ? "+" : "-");
+    std::stringstream solution;
+    solution << "f(x) = ";
 
-    if (double pos = abs(n); pos != 1.0)
-		cout << pos;
-}
-
-
-// Displays the constant term of an equation.
-/*
-\param  n   The constant term to be displayed (assumed to be non-zero).
-*/
-void equation::DisplayConst(const double n) const
-{
-	printf(" %s %g", (n > 0) ? "+" : "-", abs(n));
-}
-
-
-//-- linear class methods --\\ 
-
-// linear equation class constructor.
-/*
-\param  grad        Linear equation gradient.
-\param  intercept   y-axis intercept.
-*/
-linear::linear(const double& grad, const double& intercept)
-    : m{ grad }
-    , c{ intercept }
-{
-	root = (-c / m != 0.0) ? -c / m : 0;
-}
-
-
-// Displays the solution of a linear equation after construction.
-void linear::DisplaySln() const
-{
-	cout << "f(x) = ";
-
-	if (m != 0)
+    if (m_ != 0)
     {
-		DisplayLeadCoeff(m);
-		cout << "x";
+        solution << formatLeadCoeff(m_) << 'x';
 
-		if (c != 0)
-			DisplayConst(c);
+        if (c_ != 0)
+            solution << formatConstTerm(c_);
 
-		printf(" has one real solution %g", root);
-	}
-	else
-		printf("%g has no roots", c);
+        solution << " has one real solution " << root_;
+    }
+    else
+        solution << c_ << " has no roots";
+
+    return solution.str();
 }
 
 
-//-- quadratic class methods --\\ 
-
-// quadratic equation class constructor.
-/*
-\param  c1      Quadratic term coefficient (assumed to be non-zero).
-\param  c2      Linear term coefficient.
-\param  c3      Constant term.
-*/
-quadratic::quadratic(const double& c1, const double& c2, const double& c3)
-    : a(c1)
-    , b(c2)
-    , c(c3)
+Quadratic::Quadratic(const double a, const double b, const double c)
+    : a_{ a }
+    , b_{ b }
+    , c_{ c }
 {
-	det = b * b - 4 * a * c;    // Set det before calling FindRoots
-	FindRoots();	            // Sets root1 and root2
+	det_ = b_ * b_ - 4 * a_ * c_;   // Set det before calling FindRoots
+	findRoots();	                // Sets root1 and root2
 }
 
-
-// Displays the solution of the quadratic equation.
-void quadratic::DisplaySln() const
+std::string Quadratic::formattedSolution() const
 {
-	// Print the equation we are dealing with in a nice format
-	cout << "f(x) = ";
+    std::stringstream solution;
+    solution << "f(x) = " << formatLeadCoeff(a_) << "x^2";
 
-	DisplayLeadCoeff(a);
-	cout << "x^2";
+    if (b_ != 0)
+        solution << formatCoeff(b_) << 'x';
 
-	if (b != 0) {
-		DisplayCoeff(b);
-		cout << "x";
-	}
+    if (c_ != 0)
+        solution << formatConstTerm(c_);
 
-	if (c != 0)
-		DisplayConst(c);
+    solution << " has two ";
 
-	cout << " has two ";
+    if (det_ > 0)
+        solution << "distinct real roots " << root1_ << " and " << root2_;
+    else if (det_ == 0)
+        solution << "equal real roots " << root1_;
+    else
+        solution << "complex roots " << root1_ << " and " << root2_;
 
-	// Print the roots in differing formats depending on determinant
-	if (det > 0)
-		printf("distinct real roots %g and %g", root1.re, root2.re);
-	else if (det == 0)
-		printf("equal real roots %g", root1.re);
-	else {
-		cout << "complex roots ";
-		root1.Display();
-		cout << " and ";
-		root2.Display();
-	}
+    return solution.str();
 }
 
-
-// Finds and sets the roots of the quadratic equation.
-void quadratic::FindRoots()
+void Quadratic::findRoots()
 {
-	if (det >= 0)
+	if (det_ >= 0)
 	{
-		double root = (-b - sqrt(det)) / (2 * a);	// First root from formula
-		root2.re = (root != 0) ? root : 0;	        // Avoid -0 issues
+		double root = (-b_ - sqrt(det_)) / (2 * a_);	// First root from formula
+		root2_.re_ = (root != 0) ? root : 0;	        // Avoid -0 issues
 
-		if (det != 0) {
+		if (det_ != 0) {
 			// we construct second root from previous
 			// by adding 2*(sqrt(det)/(2a)) = sqrt(det)/a
-			double conjugate = root + sqrt(det) / a;
-			root1.re = (conjugate != 0) ? conjugate : 0;
+			double conjugate = root + sqrt(det_) / a_;
+			root1_.re_ = (conjugate != 0) ? conjugate : 0;
 		}
 		else
-			root1.re = root2.re;    // Roots are equal if det == 0
+			root1_.re_ = root2_.re_;    // Roots are equal if det == 0
 		
-		root1.im = 0;				// Imaginary parts are zero
-		root2.im = 0;
+		root1_.im_ = 0;				// Imaginary parts are zero
+		root2_.im_ = 0;
 	}
 	else
 	{
 		// If det < 0 then (-b + sqrt(det))/2a = -b/2a + i*sqrt(-det)/2a
-		root1.re = (-b / (2 * a) != 0) ? -b / (2 * a) : 0;
-		root1.im = sqrt(-det) / (2 * a);	// Make determinant positive
-		root2.re = root1.re;
-		root2.im = (-1) * root1.im;			// root2 is complex conjugate of root1
+		root1_.re_ = (-b_ / (2 * a_) != 0) ? -b_ / (2 * a_) : 0;
+		root1_.im_ = sqrt(-det_) / (2 * a_);	// Make determinant positive
+		root2_.re_ = root1_.re_;
+		root2_.im_ = (-1) * root1_.im_;			// root2 is complex conjugate of root1
 	}
 }
