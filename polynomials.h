@@ -23,12 +23,12 @@ public:
 
 
 // Class that handles linear (or constant) equations.
-class Linear : public Equation
+class Linear final : public Equation
 {
 public:
-	Linear(const double grad, const double intercept);
+	Linear(const double m, const double c) noexcept;
 
-    std::string formattedSolution() const;
+    std::string formattedSolution() const override;
 
 private:
 	double m_;	    // Gradient
@@ -38,12 +38,12 @@ private:
 
 
 // Class that handles quadratic equations.
-class Quadratic : public Equation
+class Quadratic final : public Equation
 {
 public:
-	Quadratic(const double c1, const double c2, const double c3);
+	Quadratic(const double a, const double b, const double c) noexcept;
 
-    std::string formattedSolution() const;
+    std::string formattedSolution() const override;
 
 private:
     double a_;          // x^2 coefficent
@@ -53,7 +53,7 @@ private:
 	Complex root1_;	    // 2 roots (could be complex)
 	Complex root2_;
 
-	void findRoots();
+	void findRoots() noexcept;
 };
 
 #endif
