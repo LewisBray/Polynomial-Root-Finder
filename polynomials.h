@@ -18,6 +18,8 @@ std::ostream& operator<<(std::ostream& out, const Complex& complex);
 class Equation
 {
 public:
+    virtual ~Equation() {}
+
     virtual std::string formattedSolution() const = 0;
 };
 
