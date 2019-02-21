@@ -20,23 +20,26 @@ static std::tuple<double, double, double> getCoeffsFromUser()
 
 int main()
 {
-    Complex num{ 0, 0 };
-    std::cout << num << std::endl;
+    try
+    {
+        std::cout << "This application finds the roots of quadratic equations \n"
+            << "of the form f(x) = ax^2 + bx + c.  Enter your coefficients.\n\n";
 
-    std::cout << "This application finds the roots of quadratic equations of\n"
-        << "the form f(x) = ax^2 + bx + c.  Enter your coefficients.\n"
-        << std::endl;
+        const auto[a, b, c] = getCoeffsFromUser();
 
-    const auto [a, b, c] = getCoeffsFromUser();
+        std::unique_ptr<const Equation> equation;
+        if (a != 0)
+            equation = std::make_unique<const Quadratic>(a, b, c);
+        else
+            equation = std::make_unique<const Linear>(b, c);
 
-    // Equation pointer can point to inherited object
-	std::unique_ptr<Equation> equation;
-    if (a != 0)
-        equation = std::make_unique<Quadratic>(a, b, c);
-	else
-	    equation = std::make_unique<Linear>(b, c);
-	
-	std::cout << equation->formattedSolution() << "\n\n\n";
+        std::cout << equation->formattedSolution() << "\n\n";
+    }
+    catch (const std::exception& exception)
+    {
+        std::cout << exception.what() << "\n\n";
+        return -1;
+    }
 
     return 0;
 }
